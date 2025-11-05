@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Game Tebak Tokoh Alkitab — Fun Glass Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#0f172a; --bg-2:#2b1055;
+      --glass: rgba(255,255,255,0.06);
+      --glass-2: rgba(255,255,255,0.08);
+      --primary:#60a5fa; --accent:#7dd3fc;
+      --text:#e6eefc; --muted:rgba(230,238,252,0.75);
+      --card-blur:12px;
+      --radius:16px;
+    }
+    [data-theme='light']{
+      --bg-1:#e6f0ff; --bg-2:#cfe0ff;
+      --glass: rgba(255,255,255,0.6);
+      --glass-2: rgba(255,255,255,0.7);
+      --primary:#2563eb; --accent:#7cc0ff;
+      --text:#07203a; --muted:rgba(15,23,42,0.6);
+      --card-blur:8px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto}
+    body{
+      min-height:100vh;padding:18px;background:linear-gradient(135deg,var(--bg-1),var(--bg-2));color:var(--text);-webkit-font-smoothing:antialiased;transition:background .6s,color .3s}
+
+    .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(var(--card-blur))}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:800;color:#062638;box-shadow:0 12px 30px rgba(37,99,235,0.12)}
+    h1{font-size:18px;margin:0}
+    p.lead{margin:0;font-size:13px;color:var(--muted)}
+
+    .header-actions{display:flex;gap:10px;align-items:center}
+    .btn{background:var(--primary);color:#fff;padding:9px 14px;border-radius:12px;border:none;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(37,99,235,0.12);transition:transform .12s ease}
+    .btn:active{transform:translateY(2px)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--text);box-shadow:none}
+    .theme-toggle{background:transparent;border:1px solid rgba(255,255,255,0.07);padding:8px 12px;border-radius:10px;color:var(--text);cursor:pointer}
+
+    main{display:flex;gap:18px;align-items:flex-start}
+
+    /* left */
+    .stage{flex:1.4;padding:20px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(var(--card-blur));position:relative;overflow:hidden;min-height:420px}
+
+    .shimmer{position:absolute;inset:-20% -40% auto -40%;height:220%;background:linear-gradient(120deg, rgba(255,255,255,0.02) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.02) 70%);transform:rotate(18deg);filter:blur(26px);opacity:.7;pointer-events:none;animation:shimmer 7s linear infinite}
+    @keyframes shimmer{0%{transform:translateX(-40%) rotate(18deg)}100%{transform:translateX(40%) rotate(18deg)}}
+
+    .card-inner{display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;z-index:2}
+    .label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+    .tokoh{font-size:40px;font-weight:800;color:var(--primary);text-align:center;min-height:56px}
+    .hint{font-size:14px;color:var(--muted);max-width:620px;text-align:center}
+
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+    input.player-input{padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text);min-width:170px}
+    select.player-select{padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--text)}
+
+    .small-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:var(--text);cursor:pointer}
+
+    /* right */
+    .sidebar{flex:0.9;min-width:260px;display:flex;flex-direction:column;gap:12px}
+    .panel{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(var(--card-blur))}
+    .players{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow:auto;padding-right:6px}
+    .player{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(96,165,250,0.03), transparent);border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .player .name{font-weight:700}
+    .player .score{font-weight:800;color:var(--primary)}
+
+    .meta{display:flex;justify-content:space-between;gap:8px;margin-top:8px}
+    .meta .k{font-size:13px;color:var(--muted)}
+
+    footer{margin-top:6px;color:var(--muted);text-align:center}
+
+    /* responsive */
+    @media (max-width:980px){main{flex-direction:column}.stage{min-height:360px}.tokoh{font-size:34px}}
+    @media (max-width:480px){.logo{width:48px;height:48px}.tokoh{font-size:28px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">TA</div>
+        <div>
+          <h1>Game Tebak Tokoh Alkitab</h1>
+          <p class="lead">Fun & modern • Glass edition — responsive untuk semua device</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
+        <button class="btn" onclick="resetGame(true)">🔄 Reset Semua</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="stage" role="main">
+        <div class="shimmer" aria-hidden></div>
+
+        <div class="card-inner">
+          <div class="label">Giliran Pemain</div>
+          <div id="tokohDisplay" class="tokoh">—</div>
+          <div id="tokohHint" class="hint">Tekan <strong>Acak Tokoh</strong> untuk memulai permainan.</div>
+
+          <div class="controls" style="margin-top:8px">
+            <select id="currentPlayer" class="player-select" aria-label="Pilih pemain"></select>
+            <input id="playerName" class="player-input" placeholder="Tambah pemain..." aria-label="Nama pemain">
+            <button class="btn" onclick="addPlayer()">➕ Tambah</button>
+            <button class="btn" id="randBtn" onclick="randomTokoh()">🎲 Acak Tokoh</button>
+          </div>
+
+          <div class="controls" style="margin-top:12px">
+            <button class="small-ghost" onclick="addPoint('player')">+1 Pemain (Pemutar)</button>
+            <button class="small-ghost" onclick="addPoint('guesser')">+1 Penebak</button>
+            <button class="small-ghost" onclick="peekAnswer()">🔍 Tampilkan Jawaban</button>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:16px;bottom:14px;right:16px;display:flex;justify-content:space-between;align-items:center;z-index:3">
+          <div class="meta"><div class="k">Tokoh tersisa: <strong id="remaining">0</strong></div></div>
+          <div class="meta"><div class="k">Status: <strong id="status">Siap</strong></div></div>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px"><div style="font-weight:800">Pemain</div><div class="k">Klik untuk pilih</div></div>
+          <div id="playersList" class="players"></div>
+        </div>
+
+        <div class="panel">
+          <div style="font-weight:800;margin-bottom:8px">Ringkasan</div>
+          <div class="meta"><div class="k">Total pemain: <strong id="totalPlayers">0</strong></div><div class="k">Skor tertinggi: <strong id="topScore">0</strong></div></div>
+          <div style="height:8px"></div>
+          <div class="k">Petunjuk: Beri +1 penebak jika pemain lain menebak benar. Tombol jawaban membuka alert untuk melihat jawaban (untuk wasit).</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>Disiapkan untuk permainan kelompok • Simpan halaman sebagai <code>index.html</code> • Responsive di smartphone</footer>
+  </div>
+
+<script>
+  // Data
+  const allTokoh = [
+    'Adam','Hawa','Nuh','Abraham','Sara','Ishak','Yakub','Yusuf','Musa','Harun', 'Yosua','Daud','Salomo','Samuel','Simson','Rut','Ester','Daniel','Yunus','Elia', 'Elisa','Yesaya','Yeremia','Zakaria','Yohanes Pembaptis','Maria (ibu Yesus)', 'Yusuf (suami Maria)','Yesus','Petrus','Yohanes','Yakobus','Matius','Tomas', 'Paulus','Barnabas','Timotius','Lukas','Markus','Marta','Maria Magdalena','Lazarus', 'Zakeus','Nikodemus','Pilatus','Herodes','Elisabet','Simeon','Hana','Goliat','Natan'
+  ];
+
+  // State
+  let remainingTokoh = [...allTokoh];
+  let players = [];
+  let currentTokoh = null;
+
+  // DOM
+  const playersListEl = document.getElementById('playersList');
+  const currentPlayerSelect = document.getElementById('currentPlayer');
+  const tokohDisplay = document.getElementById('tokohDisplay');
+  const tokohHint = document.getElementById('tokohHint');
+  const remainingEl = document.getElementById('remaining');
+  const statusEl = document.getElementById('status');
+  const totalPlayersEl = document.getElementById('totalPlayers');
+  const topScoreEl = document.getElementById('topScore');
+  const randBtn = document.getElementById('randBtn');
+
+  // Audio: click-pop using WebAudio (no external files)
+  const audioCtx = (typeof window !== 'undefined' && window.AudioContext) ? new AudioContext() : null;
+  function playClick(){
+    if(!audioCtx) return;
+    const ctx = audioCtx;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(660, ctx.currentTime);
+    g.gain.setValueAtTime(0, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.18);
+  }
+
+  function saveState(){
+    try{ localStorage.setItem('tb_state_v2', JSON.stringify({remainingTokoh, players, currentTokoh})); }catch(e){}
+  }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem('tb_state_v2'); if(!raw) return;
+      const s = JSON.parse(raw);
+      if(s.remainingTokoh) remainingTokoh = s.remainingTokoh;
+      if(s.players) players = s.players;
+      if(s.currentTokoh) currentTokoh = s.currentTokoh;
+    }catch(e){console.warn(e)}
+  }
+
+  function renderPlayers(){
+    playersListEl.innerHTML = '';
+    currentPlayerSelect.innerHTML = '';
+    players.forEach((p,i)=>{
+      const el = document.createElement('div'); el.className='player';
+      el.innerHTML = `<div style="display:flex;flex-direction:column"><div class=\"name\">${p.name}</div><div style=\"font-size:12px;color:var(--muted)\">#${i+1}</div></div><div class=\"score\">${p.poin}</div>`;
+      el.onclick = ()=>{ currentPlayerSelect.value = i; statusEl.textContent = 'Pemain terpilih: '+p.name; };
+      playersListEl.appendChild(el);
+
+      const opt = document.createElement('option'); opt.value = i; opt.textContent = p.name; currentPlayerSelect.appendChild(opt);
+    });
+    totalPlayersEl.textContent = players.length;
+    topScoreEl.textContent = players.length ? Math.max(...players.map(x=>x.poin)) : 0;
+    saveState();
+  }
+
+  function addPlayer(){
+    const input = document.getElementById('playerName');
+    const name = input.value.trim(); if(!name) return alert('Masukkan nama pemain.');
+    if(players.some(p=>p.name.toLowerCase()===name.toLowerCase())) return alert('Nama sudah ada.');
+    players.push({name,poin:0}); input.value=''; renderPlayers(); playClick();
+  }
+
+  function randomTokoh(){
+    if(players.length===0){ alert('Tambahkan minimal 1 pemain.'); return; }
+    if(remainingTokoh.length===0){ tokohDisplay.textContent='🎉 Semua tokoh sudah digunakan'; tokohHint.textContent='Reset untuk mulai ulang'; statusEl.textContent='Selesai'; return; }
+    playClick(); statusEl.textContent='Mengacak...'; tokohHint.textContent='Tunggu...';
+    // quick shuffle flash
+    let cycles = 10; const t = setInterval(()=>{
+      const i = Math.floor(Math.random()*remainingTokoh.length);
+      tokohDisplay.textContent = remainingTokoh[i];
+      cycles--; if(cycles<=0){ clearInterval(t);
+        // final
+        const idx = Math.floor(Math.random()*remainingTokoh.length);
+        currentTokoh = remainingTokoh.splice(idx,1)[0];
+        tokohDisplay.textContent = currentTokoh; tokohHint.textContent='Sebut 1 kata petunjuk. Jika penebak benar, beri +1.'; statusEl.textContent='Tokoh terpilih'; updateRemaining(); saveState(); playClick();
+      }
+    },80);
+  }
+
+  function updateRemaining(){ remainingEl.textContent = remainingTokoh.length; }
+
+  function addPoint(type){
+    const idx = currentPlayerSelect.value; if(idx==='') return alert('Pilih pemain terlebih dahulu.');
+    players[idx].poin += 1; renderPlayers(); statusEl.textContent = players[idx].name + ' mendapat +1'; playClick();
+  }
+
+  function peekAnswer(){ if(!currentTokoh) return alert('Belum ada tokoh yang dipilih.'); alert('Jawaban: '+currentTokoh); }
+
+  function resetGame(confirmReq=false){ if(confirmReq && !confirm('Reset akan menghapus skor dan mengembalikan semua tokoh. Lanjutkan?')) return; remainingTokoh = [...allTokoh]; players = players.map(p=>({name:p.name,poin:0})); currentTokoh=null; tokohDisplay.textContent='—'; tokohHint.textContent='Tekan Acak Tokoh untuk mulai'; statusEl.textContent='Reset'; renderPlayers(); updateRemaining(); saveState(); playClick(); }
+
+  // theme
+  const themeBtn = document.getElementById('themeBtn');
+  function toggleTheme(){ const html = document.documentElement; if(html.getAttribute('data-theme')==='light'){ html.removeAttribute('data-theme'); themeBtn.textContent='🌙 Dark Mode'; localStorage.removeItem('tb_theme_v2'); } else { html.setAttribute('data-theme','light'); themeBtn.textContent='☀️ Light Mode'; localStorage.setItem('tb_theme_v2','light'); } }
+
+  // startup
+  (function init(){ const stored = localStorage.getItem('tb_theme_v2'); if(stored==='light'){ document.documentElement.setAttribute('data-theme','light'); themeBtn.textContent='☀️ Light Mode'; }
+    loadState(); renderPlayers(); updateRemaining(); if(currentTokoh){ tokohDisplay.textContent=currentTokoh; tokohHint.textContent='(dari sesi sebelumnya)'; }
+    // friendly first-run hint on mobile
+    if(/Mobi|Android/i.test(navigator.userAgent)) setTimeout(()=>{ if(!localStorage.getItem('tb_hint_saved')){ alert('Tip: tambahkan shortcut ke Home Screen untuk pengalaman seperti aplikasi. (Chrome > Add to Home screen)'); localStorage.setItem('tb_hint_saved','1'); } },900);
+  })();
+
+  // make buttons accessible via Enter
+  document.getElementById('playerName').addEventListener('keydown', e=>{ if(e.key==='Enter') addPlayer(); });
+
+</script>
+</body>
+</html>
